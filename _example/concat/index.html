@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Sample of websocket with golang</title>
+		<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+		<script>
+      $(function() {
+        var ws = new WebSocket("ws://localhost:8080/echo");
+        ws.onmessage = function(e) {
+          console.log("data:" + event.data);
+          $("#msg-list").append("<li>" + event.data + "</li>")
+        };
+      });
+		</script>
+	</head>
+	<body>
+      <ul id="msg-list"></ul>
+	</body>
+</html>
