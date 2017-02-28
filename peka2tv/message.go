@@ -49,6 +49,10 @@ func (m *Message) GetChatName() string {
 	return "peka2tv"
 }
 
+func (m *Message) GetChannelName() string {
+	return m.Channel
+}
+
 func (m *Message) GetRenderMessHTML() template.HTML {
 	if m.TextWithEmotes != "" {
 		return m.TextWithEmotes

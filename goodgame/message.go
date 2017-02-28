@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -32,6 +33,10 @@ func (m *Message) Init() {
 
 func (m *Message) GetChatName() string {
 	return "goodgame"
+}
+
+func (m *Message) GetChannelName() string {
+	return strconv.Itoa(m.Channel)
 }
 
 func (m *Message) GetTextMessage() string {

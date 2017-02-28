@@ -72,6 +72,10 @@ func (m Message) GetChatName() string {
 	return "twitch"
 }
 
+func (m *Message) GetChannelName() string {
+	return m.Channel
+}
+
 func (m *Message) GetRenderMessHTML() template.HTML {
 	if m.TextWithEmotes != "" {
 		return m.TextWithEmotes

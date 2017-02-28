@@ -16,4 +16,5 @@ type Message interface {
 	ToUser(string) bool
 	GetUserFrom() string
 	IsFromUser() bool
+	GetChannelName() string
 }
