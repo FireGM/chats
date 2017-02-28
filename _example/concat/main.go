@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"io"
+	"log"
 	"net/http"
 	"os"
 
@@ -11,7 +11,7 @@ import (
 	"github.com/FireGM/chats/interfaces"
 	"github.com/FireGM/chats/peka2tv"
 	"github.com/FireGM/chats/twitch"
-	"golang.org/x/net/websocket"
+	"github.com/gorilla/websocket"
 )
 
 // func makeHandle(ch chan interfaces.Message) func(interfaces.Message, interfaces.Bot) {
@@ -20,22 +20,26 @@ import (
 // 	}
 // }
 
-func makeWSHandler(ch <-chan interfaces.Message) func(*websocket.Conn) {
-	return func(ws *websocket.Conn) {
+var upgrader = websocket.Upgrader{}
+
+func makeWSHandler(ch <-chan interfaces.Message) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		c, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			log.Print("upgrade:", err)
+			return
+		}
+		defer c.Close()
 		for m := range ch {
-			ws.Write([]byte(m.GetRenderFullHTML()))
+			c.WriteMessage(websocket.TextMessage, []byte(m.GetRenderFullHTML()))
 		}
 	}
-}
-
-func echoHandler(ws *websocket.Conn) {
-	io.Copy(ws, ws)
 }
 
 func main() {
 	ch := make(chan interfaces.Message)
 	connectToChats(ch)
-	http.Handle("/echo", websocket.Handler(makeWSHandler(ch)))
+	http.HandleFunc("/echo", makeWSHandler(ch))
 	http.Handle("/", http.FileServer(http.Dir(".")))
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
