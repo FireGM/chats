@@ -72,7 +72,7 @@ func getUserByLoginPass(login, pass string) UserGG {
 	return resp.Return
 }
 
-func getStreamInfo(slug string) (int, error) {
+func GetStreamInfo(slug string) (int, error) {
 	req, _ := http.NewRequest("GET", infoStreamURL+slug, nil)
 	req.Header.Set("Accept", "application/hal+json")
 	res, err := client.Do(req)

@@ -65,7 +65,7 @@ func (b *Bot) SendMessageToChan(ch string, message string) {
 }
 
 func (b *Bot) JoinBySlug(slug string) error {
-	id, err := getStreamInfo(slug)
+	id, err := GetStreamInfo(slug)
 	if err != nil {
 		return err
 	}
