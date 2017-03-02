@@ -45,20 +45,21 @@ type Emote struct {
 }
 
 type Message struct {
-	Badges         map[string]string
-	Color          string
-	DisplayName    string
-	Emotes         map[string]*Emote
-	Mod            int
-	RoomID         int
-	Channel        string
-	Text           string
-	Time           time.Time
-	User           string
-	TypeMsg        string
-	TextWithEmotes template.HTML
-	NicknameRender template.HTML
-	FullRender     template.HTML
+	Badges         map[string]string `json:"badges"`
+	Color          string            `json:"color"`
+	DisplayName    string            `json:"display_name"`
+	Emotes         map[string]*Emote `json:"emotes"`
+	Mod            int               `json:"mod"`
+	RoomID         int               `json:"room_id"`
+	Channel        string            `json:"channel"`
+	Text           string            `json:"text"`
+	Time           time.Time         `json:"time"`
+	User           string            `json:"user"`
+	TypeMsg        string            `json:"type_message"`
+	RawMessage     string            `json:"raw_message"`
+	TextWithEmotes template.HTML     `json:"text_with_emotes"`
+	NicknameRender template.HTML     `json:"nickname_render"`
+	FullRender     template.HTML     `json:"full_render"`
 }
 
 func (m *Message) IsFromUser() bool {
@@ -165,7 +166,7 @@ func ParseMessage(line string) (Message, error) {
 	m.Time = time.Now()
 	parseTags(tags, &m)
 	parseState(state, &m)
-
+	m.RawMessage = line
 	return m, nil
 }
 
