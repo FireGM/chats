@@ -86,8 +86,8 @@ func (m *Message) GetRenderNicknameHTML() template.HTML {
 		return m.NicknameRender
 	}
 	icon := m.getIcon()
-	nickname := fmt.Sprintf(`<p class="nickname goodgame-nickname" style="color: %s;">%s</p>`,
-		m.Color, m.GetUserFrom())
+	nickname := fmt.Sprintf(`<p class="nickname goodgame-nickname">%s</p>`,
+		m.GetUserFrom())
 	m.NicknameRender = template.HTML(`<div class="nickname-badge goodgame-nickname-badge">` +
 		icon + nickname + `</div>`)
 	return m.NicknameRender
@@ -145,4 +145,8 @@ func (m *Message) checkPremiumChan(id int) bool {
 		return false
 	}
 	return true
+}
+
+func (m *Message) GetColorNickname() string {
+	return m.Color
 }

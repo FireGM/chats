@@ -81,8 +81,8 @@ func (m *Message) GetRenderNicknameHTML() template.HTML {
 	if m.NicknameRender != "" {
 		return m.NicknameRender
 	}
-	nickname := fmt.Sprintf(`<p class="nickname peka-nickname" style="color: %s;">%s</p>`,
-		m.getColorNick(), html.EscapeString(m.GetUserFrom()))
+	nickname := fmt.Sprintf(`<p class="nickname peka-nickname">%s</p>`,
+		html.EscapeString(m.GetUserFrom()))
 	badge := ""
 	if m.Store.Icon != 0 {
 		badge = `<img class="badge peka-badge" src="` + icons[m.Store.Icon].URL + `">`
@@ -101,7 +101,7 @@ func (m *Message) GetRenderFullHTML() template.HTML {
 	return m.FullRender
 }
 
-func (m *Message) getColorNick() string {
+func (m *Message) GetColorNickname() string {
 	c := "#000"
 	for _, id := range m.Store.Bonuses {
 		if color, ok := nickColors[id]; ok {

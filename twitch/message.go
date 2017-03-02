@@ -119,8 +119,8 @@ func (m *Message) GetRenderNicknameHTML() template.HTML {
 			badge += fmt.Sprintf(`<img class="badge twitch-badge" src="%s" alt="%s">`, url, alt)
 		}
 	}
-	nickname := fmt.Sprintf(`<p class="nickname twitch-nickname" style="color: %s;">%s</p>`,
-		m.Color, html.EscapeString(m.GetUserFrom()))
+	nickname := fmt.Sprintf(`<p class="nickname twitch-nickname">%s</p>`,
+		html.EscapeString(m.GetUserFrom()))
 	m.NicknameRender = template.HTML(`<div class="nickname-badge twitch-nickname-badge">` +
 		badge + nickname + `</div>`)
 	return m.NicknameRender
@@ -145,6 +145,10 @@ func (m *Message) ToUser(username string) bool {
 
 func (m *Message) GetUserFrom() string {
 	return m.User
+}
+
+func (m *Message) GetColorNickname() string {
+	return m.Color
 }
 
 func ParseMessage(line string) (Message, error) {

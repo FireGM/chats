@@ -17,4 +17,5 @@ type Message interface {
 	GetUserFrom() string
 	IsFromUser() bool
 	GetChannelName() string
+	GetColorNickname() string
 }
