@@ -103,7 +103,7 @@ func (b *Bot) Join(ch string) error {
 		Channel string `json:"channel"`
 	}{Channel: ch}, time.Second*10)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	return nil
 }
