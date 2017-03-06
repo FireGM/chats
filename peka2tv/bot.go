@@ -58,11 +58,19 @@ func (b *Bot) Connect() error {
 	return nil
 }
 
+func (b *Bot) reconnect() {
+	b.Connect()
+	if b.token != "" {
+		b.LoginByToken(b.token)
+	}
+}
+
 //https://github.com/funstream-api/api/blob/master/oauth.md
 func (b *Bot) LoginByToken(token string) string {
 	user, err := getCurrentUser(token)
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return ""
 	}
 	b.username = user.Name
 	b.userID = user.ID
@@ -70,8 +78,9 @@ func (b *Bot) LoginByToken(token string) string {
 		Token string `json:"token"`
 	}{Token: token}, time.Second*10)
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
+	b.token = token
 	return res
 }
 
