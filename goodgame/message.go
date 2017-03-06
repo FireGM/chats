@@ -21,9 +21,9 @@ type Message struct {
 	Premium        interface{}      `json:"premium"`
 	Premiums       []int            `json:"premiums"`
 	Emotes         map[string]Smile `json:"emotes,omitempty"`
-	TextWithEmotes template.HTML
-	NicknameRender template.HTML
-	FullRender     template.HTML
+	TextWithEmotes template.HTML    `json:"text_with_emotes"`
+	NicknameRender template.HTML    `json:"nickname_render"`
+	FullRender     template.HTML    `json:"full_render"`
 }
 
 func (m *Message) Init() {

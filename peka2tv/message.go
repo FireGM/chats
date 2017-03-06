@@ -35,9 +35,9 @@ type Message struct {
 	To             User             `json:"to,omitempty"`
 	Type           string           `json:"type"`
 	Store          Store            `json:"store"`
-	TextWithEmotes template.HTML
-	NicknameRender template.HTML
-	FullRender     template.HTML
+	TextWithEmotes template.HTML    `json:"text_with_emotes"`
+	NicknameRender template.HTML    `json:"nickname_render"`
+	FullRender     template.HTML    `json:"full_render"`
 }
 
 func (m *Message) Init() {
