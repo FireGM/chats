@@ -3,6 +3,7 @@ package peka2tv
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"sync"
 	"time"
 )
@@ -59,18 +60,18 @@ func updateBonusStore() {
 	var sm []SmileRequest
 	var ic []Icon
 	if err := requestSmiles(&sm); err != nil {
-		panic(err)
+		log.Println(err)
 	}
 	parseSmiles(sm)
 	if err := requestStore(&bs); err != nil {
-		panic(err)
+		log.Println(err)
 	}
 	if err := requestIcons(&ic); err != nil {
-		panic(err)
+		log.Println(err)
 	}
 	parseIcons(ic)
 	switcher(bs)
-	for _ = range time.Tick(time.Second * 60) {
+	for _ = range time.Tick(time.Minute * 60) {
 		requestSmiles(&sm)
 		parseSmiles(sm)
 		requestStore(&bs)
@@ -117,7 +118,7 @@ func requestSmiles(smiles *[]SmileRequest) error {
 	}
 	err = json.Unmarshal(b, &smiles) //todo: need pointer?
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 	return nil
 }

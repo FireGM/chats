@@ -3,7 +3,6 @@ package goodgame
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -54,7 +53,6 @@ func updaterSmiles() {
 		smilesByte := getSmilesJs()
 		globalJs := parseJs(smilesByte)
 		parseToSmiles(globalJs)
-		fmt.Println(smiles)
 	}
 }
 
@@ -62,12 +60,12 @@ func getSmilesJs() []byte {
 	client := http.Client{Timeout: time.Second * 20}
 	res, err := client.Get(smilesURL)
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 	defer res.Body.Close()
 	b, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 	return b
 }
@@ -83,7 +81,7 @@ func parseJs(js []byte) GlobalJs {
 	var g GlobalJs
 	err := json.Unmarshal(trimJs, &g)
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 	return g
 }
@@ -103,10 +101,6 @@ func parseToSmiles(g GlobalJs) {
 				chanID, err = strconv.Atoi(t)
 			case int:
 				chanID = t
-			}
-			if err != nil {
-				// log.Println(err)
-				continue
 			}
 			smiles[sm.Name] = Smile{id, sm.Name, sm.Donat, sm.Animated, sm.ImgBig, sm.ImgGif, chanID}
 		}

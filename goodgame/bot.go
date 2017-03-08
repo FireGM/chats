@@ -100,20 +100,21 @@ func (b *Bot) reader() {
 		if err != nil {
 			log.Println(err)
 			go b.reconnect()
+			return
 		}
 		// fmt.Println(string(data))
 		switch gg.Type {
 		case "welcome":
-			fmt.Println("connect to gg")
+			log.Println("connect to gg")
 		case "success_auth":
 			var g AuthStructToken
 			err := json.Unmarshal(data, &g)
 			if err != nil {
 				log.Println(err)
 			}
-			fmt.Println(g)
+			log.Println(g)
 		case "success_join":
-			fmt.Println("Join")
+			log.Println("Join")
 		case "message":
 			var message Message
 			err := json.Unmarshal(data, &message)

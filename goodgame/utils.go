@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -57,17 +58,17 @@ func getUserByLoginPass(login, pass string) UserGG {
 	v.Set("return", "user")
 	res, err := client.PostForm(authURL, v)
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 	defer res.Body.Close()
 	b, err := ioutil.ReadAll(res.Body)
 	var resp AuthResp
 	err = json.Unmarshal(b, &resp)
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 	if !resp.Result {
-		panic("can't auth")
+		log.Println("can't auth")
 	}
 	return resp.Return
 }

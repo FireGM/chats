@@ -45,7 +45,7 @@ func goUpdater() {
 func updater() {
 	err := requestAndParse()
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 	for _ = range time.Tick(time.Minute * 60) {
 		requestAndParse()
