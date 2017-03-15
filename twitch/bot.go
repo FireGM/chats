@@ -76,12 +76,14 @@ func (b *Bot) Close() error {
 	return b.conn.Close()
 }
 
-func (b *Bot) Send(message string) {
-	fmt.Fprintf(b.conn, message+"\r\n")
+func (b *Bot) Send(message string) error {
+	_, err := fmt.Fprintf(b.conn, message+"\r\n")
+	return err
 }
 
-func (b *Bot) SendMessageToChan(ch, message string) {
-	b.Send(fmt.Sprintf("PRIVMSG #%s :%s", ch, message))
+func (b *Bot) SendMessageToChan(ch, message string) error {
+	err := b.Send(fmt.Sprintf("PRIVMSG #%s :%s", ch, message))
+	return err
 }
 
 func (b *Bot) Join(ch string) error {

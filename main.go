@@ -5,6 +5,7 @@ import (
 	"github.com/FireGM/chats/interfaces"
 	"github.com/FireGM/chats/peka2tv"
 	"github.com/FireGM/chats/twitch"
+	"github.com/FireGM/chats/youtube"
 )
 
 func MakerHandlers(ch chan interfaces.Message) func(interfaces.Message, interfaces.Bot) {
@@ -28,8 +29,12 @@ func GetGoodGame(login, pass string, handler func(interfaces.Message, interfaces
 }
 
 func GetTwitchChat(nickname, token, clientID string, handler func(interfaces.Message, interfaces.Bot)) *twitch.Bot {
-	bot := twitch.NewWithRender(nickname, token,
-		clientID, handler)
+	bot := twitch.NewWithRender(nickname, token, clientID, handler)
 	bot.Connect()
+	return bot
+}
+
+func GetYoutubeChat(apiKey string, handler func(interfaces.Message, interfaces.Bot)) *youtube.Bot {
+	bot := youtube.New(handler, apiKey)
 	return bot
 }

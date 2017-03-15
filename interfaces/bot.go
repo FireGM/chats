@@ -4,7 +4,7 @@ import "html/template"
 
 type Bot interface {
 	Join(string) error
-	SendMessageToChan(string, string)
+	SendMessageToChan(string, string) error
 }
 
 type Message interface {

@@ -11,6 +11,7 @@ import (
 	"github.com/FireGM/chats/interfaces"
 	"github.com/FireGM/chats/peka2tv"
 	"github.com/FireGM/chats/twitch"
+	"github.com/FireGM/chats/youtube"
 	"github.com/gorilla/websocket"
 )
 
@@ -19,6 +20,13 @@ import (
 // 		ch <- message
 // 	}
 // }
+
+type Conf struct {
+	TwitchToken    string `json:"twitch_token"`
+	TwitchClientID string `json:"twitch_client_id"`
+	TwitchNickname string `json:"twitch_nickname"`
+	YoutubeApiKey  string `json:"youtube_api_key"`
+}
 
 var upgrader = websocket.Upgrader{}
 
@@ -38,7 +46,8 @@ func makeWSHandler(ch <-chan interfaces.Message) func(http.ResponseWriter, *http
 
 func main() {
 	ch := make(chan interfaces.Message)
-	connectToChats(ch)
+	conf := getConf()
+	connectToChats(ch, conf)
 	http.HandleFunc("/echo", makeWSHandler(ch))
 	http.Handle("/", http.FileServer(http.Dir(".")))
 	err := http.ListenAndServe(":8080", nil)
@@ -47,7 +56,18 @@ func main() {
 	}
 }
 
-func connectToChats(ch chan interfaces.Message) {
+func getConf() Conf {
+	file, _ := os.Open("conf.json")
+	decoder := json.NewDecoder(file)
+	conf := Conf{}
+	err := decoder.Decode(&conf)
+	if err != nil {
+		panic(err)
+	}
+	return conf
+}
+
+func connectToChats(ch chan interfaces.Message, conf Conf) {
 	botP := peka2tv.New(chats.MakerHandlers(ch))
 	err := botP.Connect()
 	if err != nil {
@@ -66,29 +86,23 @@ func connectToChats(ch chan interfaces.Message) {
 	if err != nil {
 		panic(err)
 	}
-	connectTwitch(ch)
-}
-
-type Conf struct {
-	Token    string `json:"token"`
-	ClientID string `json:"client_id"`
-	Nickname string `json:"nickname"`
-}
-
-func connectTwitch(ch chan interfaces.Message) *twitch.Bot {
-	file, _ := os.Open("conf.json")
-	decoder := json.NewDecoder(file)
-	conf := Conf{}
-	err := decoder.Decode(&conf)
-	if err != nil {
-		panic(err)
-	}
-	botTwitch := twitch.NewWithRender(conf.Nickname, conf.Token,
-		conf.ClientID, chats.MakerHandlers(ch))
-	err = botTwitch.Connect()
-	if err != nil {
-		panic(err)
-	}
+	botTwitch := connectTwitch(ch, conf)
 	botTwitch.Join("lirik")
+	botYoutube := connectYoutube(ch, conf)
+	botYoutube.Join("UCDx2-SCLzDaC4vlh2PCGYQA")
+}
+
+func connectTwitch(ch chan interfaces.Message, conf Conf) *twitch.Bot {
+	botTwitch := twitch.NewWithRender(conf.TwitchNickname, conf.TwitchToken,
+		conf.TwitchClientID, chats.MakerHandlers(ch))
+	err := botTwitch.Connect()
+	if err != nil {
+		panic(err)
+	}
 	return botTwitch
+}
+
+func connectYoutube(ch chan interfaces.Message, conf Conf) *youtube.Bot {
+	bot := youtube.New(chats.MakerHandlers(ch), conf.YoutubeApiKey)
+	return bot
 }

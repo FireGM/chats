@@ -85,17 +85,17 @@ func (b *Bot) LoginByToken(token string) string {
 }
 
 //need login before send messages
-func (b *Bot) SendMessageToChan(channel, message string) {
-	res, err := b.conn.Ack("/chat/publish", struct {
+func (b *Bot) SendMessageToChan(channel, message string) error {
+	_, err := b.conn.Ack("/chat/publish", struct {
 		Channel string `json:"channel"`
 		Text    string `json:"text"`
 		From    User   `json:"from"`
 	}{Channel: channel, Text: message, From: User{b.userID, b.username}}, time.Second*10)
 	if err != nil {
 		log.Println(err)
-		return
+		return err
 	}
-	log.Println(res)
+	return nil
 }
 
 func (b *Bot) Join(ch string) error {
