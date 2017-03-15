@@ -7,9 +7,12 @@ import (
 	"os"
 
 	"github.com/FireGM/chats"
+	"github.com/FireGM/chats/goodgame"
 	"github.com/FireGM/chats/interfaces"
+	"github.com/FireGM/chats/peka2tv"
 	"github.com/FireGM/chats/twitch"
 	"github.com/FireGM/chats/youtube"
+
 	"github.com/gorilla/websocket"
 )
 
@@ -66,26 +69,26 @@ func getConf() Conf {
 }
 
 func connectToChats(ch chan interfaces.Message, conf Conf) {
-	// botP := peka2tv.New(chats.MakerHandlers(ch))
-	// err := botP.Connect()
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// err = botP.Join("all")
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// botGG := goodgame.New(chats.MakerHandlers(ch))
-	// err = botGG.Connect()
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// err = botGG.JoinBySlug("Miker")
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// botTwitch := connectTwitch(ch, conf)
-	// botTwitch.Join("lirik")
+	botP := peka2tv.New(chats.MakerHandlers(ch))
+	err := botP.Connect()
+	if err != nil {
+		panic(err)
+	}
+	err = botP.Join("all")
+	if err != nil {
+		panic(err)
+	}
+	botGG := goodgame.New(chats.MakerHandlers(ch))
+	err = botGG.Connect()
+	if err != nil {
+		panic(err)
+	}
+	err = botGG.JoinBySlug("Miker")
+	if err != nil {
+		panic(err)
+	}
+	botTwitch := connectTwitch(ch, conf)
+	botTwitch.Join("lirik")
 	botYoutube := connectYoutube(ch, conf)
 	botYoutube.Join("UC3wf1pcRkwV-NvUpBfHovPw") //24x7 news stream
 }

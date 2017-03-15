@@ -6,12 +6,12 @@ import "fmt"
 import "time"
 
 type Message struct {
-	ChannelID      string        `json:"channel_id`
+	ChannelID      string        `json:"channel_id"`
 	Owner          string        `json:"owner"`
 	ChatOwner      bool          `json:"chat_owner"`
 	Moderator      bool          `json:"moderator"`
 	Text           string        `json:"text"`
-	SendTime       time.Time     `json:"-"`
+	SendTime       time.Time     `json:"send_time"`
 	TextWithEmotes template.HTML `json:"text_with_emotes"`
 	NicknameRender template.HTML `json:"nickname_render"`
 	FullRender     template.HTML `json:"full_render"`

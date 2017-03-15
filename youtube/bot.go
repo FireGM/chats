@@ -41,7 +41,7 @@ func (y *YouChannel) reader(handler func(interfaces.Message, interfaces.Bot), ap
 			time.Sleep(sleeper)
 			continue
 		}
-		newLast := time.Time{}
+		newLast := y.LastMessage
 		for _, message := range messages.Items {
 			mes, err := parseMessage(message, y.ChannelID)
 			if err != nil {
