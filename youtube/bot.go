@@ -70,6 +70,7 @@ type Bot struct {
 
 func (b *Bot) Join(channelID string) error {
 	b.Lock()
+	defer b.Unlock()
 	chatID, err := GetChatIDByChannel(channelID, b.apiKey)
 	if err != nil {
 		return err
@@ -84,6 +85,8 @@ func (b *Bot) SendMessageToChan(channel, message string) error {
 	if b.oAuth == "" {
 		return errors.New("Access token empty")
 	}
+	b.RLock()
+	defer b.RUnlock()
 	uChannel, ok := b.streams[channel]
 	if !ok {
 		return errors.New("Need join to channel")
