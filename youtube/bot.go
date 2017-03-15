@@ -22,7 +22,6 @@ type YouChannel struct { //todo: oAuth in channel?
 	ChannelID   string
 	ChatID      string
 	LastMessage time.Time
-	sync.RWMutex
 }
 
 func (y *YouChannel) reader(handler func(interfaces.Message, interfaces.Bot), apiKey string, bot *Bot) {
@@ -42,13 +41,22 @@ func (y *YouChannel) reader(handler func(interfaces.Message, interfaces.Bot), ap
 			time.Sleep(sleeper)
 			continue
 		}
+		newLast := time.Time{}
 		for _, message := range messages.Items {
 			mes, err := parseMessage(message, y.ChannelID)
 			if err != nil {
+				log.Println(err)
 				continue
 			}
-			handler(&mes, bot)
+			if mes.SendTime.After(y.LastMessage) {
+				handler(&mes, bot)
+				if mes.SendTime.After(newLast) {
+					newLast = mes.SendTime
+				}
+			}
 		}
+		y.LastMessage = newLast
+		time.Sleep(sleeper)
 	}
 }
 

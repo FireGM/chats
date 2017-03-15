@@ -3,6 +3,7 @@ package youtube
 import "html/template"
 import "strings"
 import "fmt"
+import "time"
 
 type Message struct {
 	ChannelID      string        `json:"channel_id`
@@ -10,6 +11,7 @@ type Message struct {
 	ChatOwner      bool          `json:"chat_owner"`
 	Moderator      bool          `json:"moderator"`
 	Text           string        `json:"text"`
+	SendTime       time.Time     `json:"-"`
 	TextWithEmotes template.HTML `json:"text_with_emotes"`
 	NicknameRender template.HTML `json:"nickname_render"`
 	FullRender     template.HTML `json:"full_render"`
@@ -85,5 +87,6 @@ func parseMessage(mesR MessageResp, channelID string) (Message, error) {
 	m.ChatOwner = mesR.AuthorDetails.IsChatOwner
 	m.Moderator = mesR.AuthorDetails.IsChatModerator
 	m.Text = mesR.Snippet.DisplayMessage
+	m.SendTime = mesR.Snippet.PublishedAt
 	return m, nil //todo: errors?
 }

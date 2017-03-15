@@ -1,5 +1,9 @@
 package youtube
 
+import (
+	"time"
+)
+
 type PageInfo struct {
 	TotalResults int `json:"totalResults"`
 }
@@ -33,9 +37,10 @@ type StreamResp struct {
 }
 
 type MessageSnippet struct {
-	Type              string `json:"type"`
-	HasDisplayContent bool   `json:"hasDisplayContent"`
-	DisplayMessage    string `json:"displayMessage"`
+	Type              string    `json:"type"`
+	HasDisplayContent bool      `json:"hasDisplayContent"`
+	DisplayMessage    string    `json:"displayMessage"`
+	PublishedAt       time.Time `json:"publishedAt"`
 }
 
 type MessageAuthorDetails struct {
