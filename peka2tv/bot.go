@@ -108,6 +108,16 @@ func (b *Bot) Join(ch string) error {
 	return nil
 }
 
+func (b *Bot) Leave(ch string) error {
+	_, err := b.conn.Ack("/chat/leave", struct {
+		Channel string `json:"channel"`
+	}{Channel: ch}, time.Second*10)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (b *Bot) JoinBySlug(slug string) error {
 	id, err := GetUserIdBySlug(slug)
 	if err != nil {

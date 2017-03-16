@@ -76,6 +76,11 @@ func (b *Bot) Join(ch string) error {
 	return err
 }
 
+func (b *Bot) Leave(ch string) error {
+	err := b.conn.WriteJSON(GGruct{Type: "unjoin", Data: map[string]string{"channel_id": ch}})
+	return err
+}
+
 func (b *Bot) SendMessageToChan(ch string, message string) error {
 	err := b.conn.WriteJSON(GGruct{Type: "send_message", Data: MessageReq{ch, message}})
 	if err != nil {

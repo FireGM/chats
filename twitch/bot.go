@@ -92,9 +92,26 @@ func (b *Bot) Join(ch string) error {
 	if _, ok := b.channels[ch]; ok {
 		return nil
 	}
-	b.Send("JOIN #" + ch)
+	err := b.Send("JOIN #" + ch)
+	if err != nil {
+		return err
+	}
 	n := time.Now()
 	b.channels[ch] = &n
+	return nil
+}
+
+func (b *Bot) Leave(ch string) error {
+	b.locker.Lock()
+	defer b.locker.Unlock()
+	if _, ok := b.channels[ch]; ok {
+		return nil
+	}
+	err := b.Send("PART #" + ch)
+	if err != nil {
+		return err
+	}
+	delete(b.channels, ch)
 	return nil
 }
 
