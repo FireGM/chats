@@ -144,7 +144,7 @@ func (b *Bot) Ban(channel, channelId string) error {
 	return banUser(ch.ChatID, channelId, 72000, b.oAuth, b.apiKey)
 }
 
-func (b *Bot) Timeout(channel, channelId string) error {
+func (b *Bot) Timeout(channel, channelId string, t int) error {
 	if err := b.checkOAuth(); err != nil {
 		return err
 	}
@@ -152,7 +152,7 @@ func (b *Bot) Timeout(channel, channelId string) error {
 	if !ok {
 		return errors.New("No chat join")
 	}
-	return banUser(ch.ChatID, channelId, 600, b.oAuth, b.apiKey)
+	return banUser(ch.ChatID, channelId, t, b.oAuth, b.apiKey)
 }
 
 func (b *Bot) checkOAuth() error {

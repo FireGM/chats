@@ -98,8 +98,8 @@ func (b *Bot) Ban(channelId, userId string) error {
 	return err
 }
 
-func (b *Bot) Timeout(channelId, userId string) error {
-	st := GGruct{Type: "ban", Data: BanUser{ChannelId: channelId, BanChannel: channelId, UserId: userId, Duration: 1200,
+func (b *Bot) Timeout(channelId, userId string, t int) error {
+	st := GGruct{Type: "ban", Data: BanUser{ChannelId: channelId, BanChannel: channelId, UserId: userId, Duration: t,
 		DeleteMessage: true, ShowBan: true, Reason: "20 minutes"}}
 	err := b.conn.WriteJSON(st)
 	return err

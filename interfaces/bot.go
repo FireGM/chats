@@ -11,8 +11,8 @@ type Bot interface {
 	SendMessageToChan(string, string) error
 	// ban(channel, nickname)
 	Ban(string, string) error
-	// 10 minutes
-	Timeout(string, string) error
+	//with time in seconds
+	Timeout(string, string, int) error
 }
 
 type Message interface {

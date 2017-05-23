@@ -85,8 +85,8 @@ func (b *Bot) Ban(channel, nickname string) error {
 	return b.SendMessageToChan(channel, fmt.Sprintf(".ban %s", nickname))
 }
 
-func (b *Bot) Timeout(channel, nickname string) error {
-	return b.SendMessageToChan(channel, fmt.Sprintf(".timeout %s %d", nickname, 500))
+func (b *Bot) Timeout(channel, nickname string, t int) error {
+	return b.SendMessageToChan(channel, fmt.Sprintf(".timeout %s %d", nickname, t))
 }
 
 func (b *Bot) SendMessageToChan(ch, message string) error {
