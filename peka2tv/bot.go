@@ -1,6 +1,7 @@
 package peka2tv
 
 import (
+	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -134,11 +135,11 @@ func (b *Bot) JoinBySlug(slug string) error {
 }
 
 func (b *Bot) Ban(channel, nickname string) error {
-	return nil
+	return errors.New("no bans for peka2tv")
 }
 
-func (b *Bot) Timeout(channel, nickname string) error {
-	return nil
+func (b *Bot) Timeout(channel, nickname string, t int) error {
+	return errors.New("no bans for peka2tv")
 }
 
 func (b *Bot) Send(message string) error {
