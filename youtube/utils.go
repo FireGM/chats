@@ -35,7 +35,7 @@ func GetChatIDByChannel(channelId string, apiKey string) (string, error) {
 	if len(streamResp.Items) < 1 || streamResp.Items[0].LiveStreamingDetails.ActiveLiveChatID == "" {
 		return "", errors.New("No chat for stream")
 	}
-	// fmt.Println(streamResp.Items[0].LiveStreamingDetails.ActiveLiveChatID)
+	// log.Println(streamResp.Items[0].LiveStreamingDetails.ActiveLiveChatID)
 	return streamResp.Items[0].LiveStreamingDetails.ActiveLiveChatID, nil
 }
 

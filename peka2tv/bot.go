@@ -29,7 +29,7 @@ func Default() *Bot {
 
 func defaultHandleFunc(m interfaces.Message, b interfaces.Bot) {
 	h := m.GetRenderMessHTML()
-	fmt.Println(h)
+	log.Println(h)
 }
 
 type Bot struct {

@@ -3,6 +3,7 @@ package twitch
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"net"
 	"net/textproto"
 	"strings"
@@ -33,7 +34,7 @@ func defaultHandle(m interfaces.Message, b interfaces.Bot) {
 		return
 	}
 	h := m.GetRenderMessHTML()
-	fmt.Println(h)
+	log.Println(h)
 }
 
 type Bot struct {
@@ -137,7 +138,7 @@ func (b *Bot) read() {
 			b.reconnect()
 			return
 		}
-		// fmt.Println(line)
+		// log.Println(line)
 		if strings.HasPrefix(line, "PING") {
 			b.Send(strings.Replace(line, "PING", "PONG", 1))
 			continue
