@@ -8,6 +8,11 @@ import (
 	"strings"
 )
 
+const (
+	privMsg  = "PRIVMSG"
+	clearMsg = "CLEARCHAT"
+)
+
 type Message struct {
 	Channel        int              `json:"channel_id"`
 	UserID         int              `json:"user_id"`
@@ -24,6 +29,7 @@ type Message struct {
 	TextWithEmotes template.HTML    `json:"text_with_emotes"`
 	NicknameRender template.HTML    `json:"nickname_render"`
 	FullRender     template.HTML    `json:"full_render"`
+	Type           string           `json:"type"`
 }
 
 func (m *Message) Init() {
@@ -111,6 +117,11 @@ func (m *Message) GetRenderFullHTML() template.HTML {
 	m.FullRender = template.HTML(`<div class="full-message goodgame-full-message">` +
 		m.GetRenderNicknameHTML() + `<span class="separator goodgame-separator"></span>` + m.GetRenderMessHTML() + `</div>`)
 	return m.FullRender
+}
+
+// delete message
+func (m *Message) IsClearMessage() bool {
+	return m.Type == clearMsg
 }
 
 func (m *Message) parseEmotes() {

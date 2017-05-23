@@ -12,6 +12,7 @@ import (
 
 const authURL = "https://goodgame.ru/ajax/login/"
 const infoStreamURL = "https://api2.goodgame.ru/streams/"
+const infoUserURL = "https://goodgame.ru/api/getchannelstatus"
 
 var client = http.Client{Timeout: time.Second * 20}
 
@@ -29,6 +30,17 @@ type ChatUser struct {
 type GGruct struct {
 	Type string      `json:"type"`
 	Data interface{} `json:"data"`
+}
+
+type BanUser struct {
+	ChannelId     string `json:"channel_id"`
+	BanChannel    string `json:"ban_channel"`
+	UserId        string `json:"user_id"`
+	Duration      int    `json:"duration"`
+	ShowBan       bool   `json:"show_ban"`
+	DeleteMessage bool   `json:"delete_message"`
+	Reason        string `json:"reason"`
+	Permanent     bool   `json:"permanent"`
 }
 
 type MessageReq struct {
@@ -75,6 +87,29 @@ func getUserByLoginPass(login, pass string) UserGG {
 
 func GetStreamInfo(slug string) (int, error) {
 	req, _ := http.NewRequest("GET", infoStreamURL+slug, nil)
+	req.Header.Set("Accept", "application/hal+json")
+	res, err := client.Do(req)
+	if err != nil {
+		return 0, err
+	}
+	defer res.Body.Close()
+	b, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return 0, err
+	}
+	var s StreamInfo
+	err = json.Unmarshal(b, &s)
+	if err != nil {
+		return 0, err
+	}
+	if s.Id == 0 {
+		return 0, errors.New(string(b))
+	}
+	return s.Id, nil
+}
+
+func GetUserInfo(slug string) (int, error) {
+	req, _ := http.NewRequest("GET", infoUserURL+slug, nil)
 	req.Header.Set("Accept", "application/hal+json")
 	res, err := client.Do(req)
 	if err != nil {

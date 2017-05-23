@@ -91,6 +91,20 @@ func (b *Bot) SendMessageToChan(ch string, message string) error {
 	return nil
 }
 
+func (b *Bot) Ban(channelId, userId string) error {
+	st := GGruct{Type: "ban", Data: BanUser{ChannelId: channelId, BanChannel: channelId, UserId: userId, Duration: 72000,
+		DeleteMessage: true, ShowBan: true, Reason: "20 minutes"}}
+	err := b.conn.WriteJSON(st)
+	return err
+}
+
+func (b *Bot) Timeout(channelId, userId string) error {
+	st := GGruct{Type: "ban", Data: BanUser{ChannelId: channelId, BanChannel: channelId, UserId: userId, Duration: 1200,
+		DeleteMessage: true, ShowBan: true, Reason: "20 minutes"}}
+	err := b.conn.WriteJSON(st)
+	return err
+}
+
 func (b *Bot) JoinBySlug(slug string) error {
 	id, err := GetStreamInfo(slug)
 	if err != nil {
@@ -109,7 +123,7 @@ func (b *Bot) reader() {
 			go b.reconnect()
 			return
 		}
-		// fmt.Println(string(data))
+		fmt.Println(gg.Type, string(data))
 		switch gg.Type {
 		case "welcome":
 			log.Println("connect to gg")
@@ -128,6 +142,14 @@ func (b *Bot) reader() {
 			if err != nil {
 				log.Println(err)
 			}
+			b.handleFunc(&message, b)
+		case "user_ban":
+			var message Message
+			err := json.Unmarshal(data, &message)
+			if err != nil {
+				log.Println(err)
+			}
+			message.Type = clearMsg
 			b.handleFunc(&message, b)
 		}
 	}

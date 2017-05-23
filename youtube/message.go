@@ -1,9 +1,16 @@
 package youtube
 
-import "html/template"
-import "strings"
-import "fmt"
-import "time"
+import (
+	"fmt"
+	"html/template"
+	"strings"
+	"time"
+)
+
+const (
+	privMsg  = "PRIVMSG"
+	clearMsg = "CLEARCHAT"
+)
 
 type Message struct {
 	ChannelID      string        `json:"channel_id"`
@@ -15,6 +22,7 @@ type Message struct {
 	TextWithEmotes template.HTML `json:"text_with_emotes"`
 	NicknameRender template.HTML `json:"nickname_render"`
 	FullRender     template.HTML `json:"full_render"`
+	Type           string `json:"type"`
 }
 
 func (m *Message) GetChatName() string {
@@ -78,6 +86,10 @@ func (m *Message) GetRenderFullHTML() template.HTML {
 	m.FullRender = template.HTML(fmt.Sprintf(`<div class="full-message youtube-full-message">%s<span class="separator youtube-separator"></span>%s</div>`,
 		m.GetRenderNicknameHTML(), m.GetRenderMessHTML()))
 	return m.FullRender
+}
+
+func (m *Message) IsClearMessage() bool {
+	return m.Type == clearMsg
 }
 
 func parseMessage(mesR MessageResp, channelID string) (Message, error) {

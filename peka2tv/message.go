@@ -8,6 +8,15 @@ import (
 	"strings"
 )
 
+const (
+	privMsg  = "PRIVMSG"
+	clearMsg = "CLEARCHAT"
+)
+
+type ExtraData struct {
+	Id int `json:"id"`
+}
+
 type Store struct {
 	Icon    int
 	Bonuses []int
@@ -27,7 +36,15 @@ type Emote struct {
 	Url  string `json:"url"`
 }
 
+type Ban struct {
+	ID      int    `json:"id"`
+	Channel int    `json:"channel"`
+	Reason  string `json:"reason"`
+	Data    map[string]int
+}
+
 type Message struct {
+	ID             int              `json:"id"`
 	Channel        string           `json:"channel"`
 	From           User             `json:"from"`
 	Text           string           `json:"text"`
@@ -38,6 +55,7 @@ type Message struct {
 	TextWithEmotes template.HTML    `json:"text_with_emotes"`
 	NicknameRender template.HTML    `json:"nickname_render"`
 	FullRender     template.HTML    `json:"full_render"`
+	//id message for bans
 }
 
 func (m *Message) Init() {
@@ -125,6 +143,11 @@ func (m *Message) IsFromUser() bool {
 
 func (m *Message) GetTextMessage() string {
 	return m.Text
+}
+
+// delete message
+func (m *Message) IsClearMessage() bool {
+	return m.Type == clearMsg
 }
 
 func (m *Message) checkMaxSmiles() int {

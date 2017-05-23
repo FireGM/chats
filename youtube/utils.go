@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -15,6 +16,7 @@ const channelUrl = `https://www.googleapis.com/youtube/v3/search`
 const streamInfoUrl = `https://www.googleapis.com/youtube/v3/videos`
 const messagesUrlFormat = `https://www.googleapis.com/youtube/v3/liveChat/messages?liveChatId=%s&part=id,snippet,authorDetails&key=%s`
 const messagesInsertUrl = `https://www.googleapis.com/youtube/v3/liveChat/messages`
+const banUrl = `https://www.googleapis.com/youtube/v3/liveChat/bans`
 
 var client = &http.Client{Timeout: time.Second * 10}
 
@@ -33,6 +35,7 @@ func GetChatIDByChannel(channelId string, apiKey string) (string, error) {
 	if len(streamResp.Items) < 1 || streamResp.Items[0].LiveStreamingDetails.ActiveLiveChatID == "" {
 		return "", errors.New("No chat for stream")
 	}
+	// fmt.Println(streamResp.Items[0].LiveStreamingDetails.ActiveLiveChatID)
 	return streamResp.Items[0].LiveStreamingDetails.ActiveLiveChatID, nil
 }
 
@@ -63,6 +66,36 @@ func getChannelResp(channelId string, apiKey string) (ChanResp, error) {
 		return chanResp, err
 	}
 	return chanResp, nil
+}
+
+func banUser(chatId, banChannelId string, duration int, token, apiKey string) error {
+	body := fmt.Sprintf(`{"snippet": {"banDurationSeconds": "%d", "liveChatId": "%s", "type": "temporary", "bannedUserDetails": {"channelId": "%s"}}}`, duration, chatId, banChannelId)
+	req, err := http.NewRequest("POST", banUrl, bytes.NewBufferString(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+	values := url.Values{}
+	values.Set("part", "snippet")
+	// values.Set("access_token", token)
+	values.Set("key", apiKey) //todo: apiKey required?
+	req.URL.RawQuery = values.Encode()
+	log.Println(req.URL.String())
+	log.Println(req.Header)
+	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	b, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+	if res.StatusCode != 200 {
+		return errors.New(string(b))
+	}
+	return nil
 }
 
 func getStreamResp(streamId string, apiKey string) (StreamResp, error) {
@@ -123,15 +156,17 @@ func getSleepTime(t int) time.Duration {
 }
 
 func sendMessageToChat(chatId, message, token, apiKey string) error {
-	body := fmt.Sprintf(`{"snippet": {"liveChatId" : "%s", "type": "textMessageEvent", "textMessageDetails": {"messageText": "%s"}}}`,
+	body := fmt.Sprintf(`{"snippet": {"liveChatId": "%s", "type": "textMessageEvent", "textMessageDetails": {"messageText": "%s"}}}`,
 		chatId, message)
 	req, err := http.NewRequest("POST", messagesInsertUrl, bytes.NewBufferString(body))
 	if err != nil {
 		return err
 	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
 	values := url.Values{}
 	values.Set("part", "snippet")
-	values.Set("access_token", token)
+	// values.Set("access_token", token)
 	values.Set("key", apiKey) //todo: apiKey required?
 	req.URL.RawQuery = values.Encode()
 	res, err := client.Do(req)

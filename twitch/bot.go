@@ -81,9 +81,16 @@ func (b *Bot) Send(message string) error {
 	return err
 }
 
+func (b *Bot) Ban(channel, nickname string) error {
+	return b.SendMessageToChan(channel, fmt.Sprintf(".ban %s", nickname))
+}
+
+func (b *Bot) Timeout(channel, nickname string) error {
+	return b.SendMessageToChan(channel, fmt.Sprintf(".timeout %s %d", nickname, 500))
+}
+
 func (b *Bot) SendMessageToChan(ch, message string) error {
-	err := b.Send(fmt.Sprintf("PRIVMSG #%s :%s", ch, message))
-	return err
+	return b.Send(fmt.Sprintf("PRIVMSG #%s :%s", ch, message))
 }
 
 func (b *Bot) Join(ch string) error {
@@ -130,6 +137,7 @@ func (b *Bot) read() {
 			b.reconnect()
 			return
 		}
+		// fmt.Println(line)
 		if strings.HasPrefix(line, "PING") {
 			b.Send(strings.Replace(line, "PING", "PONG", 1))
 			continue

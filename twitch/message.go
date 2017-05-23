@@ -55,7 +55,7 @@ type Message struct {
 	Text           string            `json:"text"`
 	Time           time.Time         `json:"time"`
 	User           string            `json:"user"`
-	TypeMsg        string            `json:"type_message"`
+	Type           string            `json:"type"`
 	RawMessage     string            `json:"raw_message"`
 	TextWithEmotes template.HTML     `json:"text_with_emotes"`
 	NicknameRender template.HTML     `json:"nickname_render"`
@@ -63,7 +63,7 @@ type Message struct {
 }
 
 func (m *Message) IsFromUser() bool {
-	if m.TypeMsg == privMsg {
+	if m.Type == privMsg {
 		return true
 	}
 	return false
@@ -151,15 +151,19 @@ func (m *Message) GetColorNickname() string {
 	return m.Color
 }
 
+func (m *Message) IsClearMessage() bool {
+	return m.Type == clearMsg
+}
+
 func ParseMessage(line string) (Message, error) {
 	var m Message
 	if !strings.HasPrefix(line, "@") {
 		return m, errors.New("Not message")
 	}
 	if strings.Contains(line, privMsg) {
-		m.TypeMsg = privMsg
+		m.Type = privMsg
 	} else if strings.Contains(line, clearMsg) {
-		m.TypeMsg = clearMsg
+		m.Type = clearMsg
 	} else {
 		return m, errors.New("not supported")
 	}

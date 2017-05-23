@@ -54,6 +54,12 @@ func (b *Bot) Connect() error {
 	conn.On("/chat/message", func(h *gosocketio.Channel, m Message) {
 		b.handleFunc(&m, b)
 	})
+	conn.On("/chat/message/remove", func(h *gosocketio.Channel, m Message) {
+		log.Println(m.ID)
+		log.Println(m)
+		m.Type = clearMsg
+		b.handleFunc(&m, b)
+	})
 	b.conn = conn
 	return nil
 }
@@ -125,6 +131,14 @@ func (b *Bot) JoinBySlug(slug string) error {
 	}
 	stream := fmt.Sprintf("stream/%d", id)
 	return b.Join(stream)
+}
+
+func (b *Bot) Ban(channel, nickname string) error {
+	return nil
+}
+
+func (b *Bot) Timeout(channel, nickname string) error {
+	return nil
 }
 
 func (b *Bot) Send(message string) error {

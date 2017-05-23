@@ -15,7 +15,7 @@ func New(handleFunc func(interfaces.Message, interfaces.Bot), apiKey string) *Bo
 }
 
 func NewWithAuth(handleFunc func(interfaces.Message, interfaces.Bot), apiKey, oAuth string) *Bot {
-	return &Bot{handleFunc: handleFunc, apiKey: apiKey, oAuth: oAuth}
+	return &Bot{handleFunc: handleFunc, apiKey: apiKey, oAuth: oAuth, streams: map[string]*YouChannel{}}
 }
 
 type YouChannel struct { //todo: oAuth in channel?
@@ -42,6 +42,11 @@ func (y *YouChannel) reader(handler func(interfaces.Message, interfaces.Bot), ap
 				y.RUnlock()
 				continue
 			}
+			err := bot.Leave(y.ChannelID)
+			if err != nil {
+				log.Println(err)
+			}
+			break
 		}
 		errorCounter = 0
 		sleeper := getSleepTime(messages.PollingIntervalMillis)
@@ -76,6 +81,7 @@ func (y *YouChannel) Stop() {
 }
 
 type Bot struct {
+	//map[channelId]
 	streams    map[string]*YouChannel
 	handleFunc func(interfaces.Message, interfaces.Bot)
 	apiKey     string
@@ -112,8 +118,8 @@ func (b *Bot) Leave(ch string) error {
 }
 
 func (b *Bot) SendMessageToChan(channel, message string) error {
-	if b.oAuth == "" {
-		return errors.New("Access token empty")
+	if err := b.checkOAuth(); err != nil {
+		return err
 	}
 	b.RLock()
 	defer b.RUnlock()
@@ -121,9 +127,37 @@ func (b *Bot) SendMessageToChan(channel, message string) error {
 	if !ok {
 		return errors.New("Need join to channel")
 	}
-	err := sendMessageToChat(uChannel.ChatID, message, b.oAuth, b.apiKey)
-	if err != nil {
+	return sendMessageToChat(uChannel.ChatID, message, b.oAuth, b.apiKey)
+}
+
+func (b *Bot) Ban(channel, channelId string) error {
+	if err := b.checkOAuth(); err != nil {
 		return err
+	}
+	b.RLock()
+	defer b.RUnlock()
+	ch, ok := b.streams[channel]
+	if !ok {
+		return errors.New("No chat join")
+	}
+	log.Printf("ban channel %s in chat %s for channel %s", channelId, ch.ChatID, channel)
+	return banUser(ch.ChatID, channelId, 72000, b.oAuth, b.apiKey)
+}
+
+func (b *Bot) Timeout(channel, channelId string) error {
+	if err := b.checkOAuth(); err != nil {
+		return err
+	}
+	ch, ok := b.streams[channel]
+	if !ok {
+		return errors.New("No chat join")
+	}
+	return banUser(ch.ChatID, channelId, 600, b.oAuth, b.apiKey)
+}
+
+func (b *Bot) checkOAuth() error {
+	if b.oAuth == "" {
+		return errors.New("Access token empty")
 	}
 	return nil
 }
