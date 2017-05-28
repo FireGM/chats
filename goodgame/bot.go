@@ -71,6 +71,19 @@ func (b *Bot) LoginByPass(login, password string) error {
 	return err
 }
 
+func (b *Bot) LoginByToken(token string) error {
+	chatToken, err := getChatTokenByUserToken(token)
+	log.Println(chatToken)
+	if err != nil {
+		return err
+	}
+	userId, err := strconv.Atoi(chatToken.UserID)
+	if err != nil {
+		return err
+	}
+	return b.conn.WriteJSON(GGruct{Type: "auth", Data: AuthStructToken{Token: chatToken.Token, UserID: userId}})
+}
+
 func (b *Bot) Join(ch string) error {
 	err := b.conn.WriteJSON(GGruct{Type: "join", Data: map[string]string{"channel_id": ch}})
 	return err
@@ -144,7 +157,7 @@ func (b *Bot) reader() {
 			}
 			b.handleFunc(&message, b)
 		case "user_ban":
-			var message Message
+			var message MessageBan
 			err := json.Unmarshal(data, &message)
 			if err != nil {
 				log.Println(err)

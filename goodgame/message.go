@@ -32,6 +32,11 @@ type Message struct {
 	Type           string           `json:"type"`
 }
 
+type MessageBan struct {
+	Message
+	UserID string `json:"user_id"`
+}
+
 func (m *Message) Init() {
 	m.sortPremiums()
 	m.parseEmotes()

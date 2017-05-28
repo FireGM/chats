@@ -13,6 +13,7 @@ import (
 const authURL = "https://goodgame.ru/ajax/login/"
 const infoStreamURL = "https://api2.goodgame.ru/streams/"
 const infoUserURL = "https://goodgame.ru/api/getchannelstatus"
+const chatTokenURL = "https://api2.goodgame.ru/chat/token?access_token="
 
 var client = http.Client{Timeout: time.Second * 20}
 
@@ -54,6 +55,11 @@ type UserGG struct {
 	Username string `json:"username"`
 }
 
+type ChatToken struct {
+	UserID string `json:"user_id"`
+	Token  string `json:"chat_token"`
+}
+
 type AuthResp struct {
 	Result bool   `json:"result"`
 	Return UserGG `json:"return"`
@@ -83,6 +89,30 @@ func getUserByLoginPass(login, pass string) UserGG {
 		log.Println("can't auth")
 	}
 	return resp.Return
+}
+
+func getChatTokenByUserToken(token string) (ChatToken, error) {
+	req, err := http.NewRequest("GET", chatTokenURL+token, nil)
+	if err != nil {
+		return ChatToken{}, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	res, err := client.Do(req)
+	if err != nil {
+		return ChatToken{}, err
+	}
+	defer res.Body.Close()
+	b, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return ChatToken{}, err
+	}
+	var ct ChatToken
+	err = json.Unmarshal(b, &ct)
+	if err != nil {
+		return ChatToken{}, err
+	}
+	return ct, nil
 }
 
 func GetStreamInfo(slug string) (int, error) {
