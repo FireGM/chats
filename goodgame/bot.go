@@ -136,7 +136,7 @@ func (b *Bot) reader() {
 			go b.reconnect()
 			return
 		}
-		fmt.Println(gg.Type, string(data))
+		// fmt.Println(gg.Type, string(data))
 		switch gg.Type {
 		case "welcome":
 			log.Println("connect to gg")
