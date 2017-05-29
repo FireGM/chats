@@ -37,6 +37,10 @@ type MessageBan struct {
 	UserID string `json:"user_id"`
 }
 
+func (m *MessageBan) GetUID() string {
+	return m.UserID
+}
+
 func (m *Message) Init() {
 	m.sortPremiums()
 	m.parseEmotes()
