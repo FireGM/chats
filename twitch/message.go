@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"html"
 	"html/template"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -160,6 +161,7 @@ func (m *Message) IsClearMessage() bool {
 }
 
 func ParseMessage(line string) (Message, error) {
+	log.Println(line)
 	var m Message
 	if !strings.HasPrefix(line, "@") {
 		return m, errors.New("Not message")
@@ -178,6 +180,9 @@ func ParseMessage(line string) (Message, error) {
 	}
 	tags, state := splited[0], splited[1]
 	m.Text = splited[2]
+	if m.Type == clearMsg {
+		m.User = m.Text
+	}
 	m.Time = time.Now()
 	parseTags(tags, &m)
 	parseState(state, &m)
