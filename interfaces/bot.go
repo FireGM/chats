@@ -27,4 +27,5 @@ type Message interface {
 	GetChannelName() string
 	GetColorNickname() string
 	IsClearMessage() bool
+	GetUID() string
 }

@@ -5,6 +5,7 @@ import (
 	"html"
 	"html/template"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -69,6 +70,10 @@ func (m *Message) GetChatName() string {
 
 func (m *Message) GetChannelName() string {
 	return m.Channel
+}
+
+func (m *Message) GetUID() string {
+	return strconv.Itoa(m.ID)
 }
 
 func (m *Message) GetRenderMessHTML() template.HTML {

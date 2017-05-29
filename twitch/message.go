@@ -77,6 +77,10 @@ func (m *Message) GetChannelName() string {
 	return m.Channel
 }
 
+func (m *Message) GetUID() string {
+	return m.User
+}
+
 func (m *Message) GetRenderMessHTML() template.HTML {
 	if m.TextWithEmotes != "" {
 		return m.TextWithEmotes

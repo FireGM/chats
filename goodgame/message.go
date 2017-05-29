@@ -60,6 +60,11 @@ func (m *Message) ToUser(user string) bool {
 func (m *Message) GetUserFrom() string {
 	return m.Username
 }
+
+func (m *Message) GetUID() string {
+	return strconv.Itoa(m.UserID)
+}
+
 func (m *Message) IsFromUser() bool {
 	return m.Username != ""
 }

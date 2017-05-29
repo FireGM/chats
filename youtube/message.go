@@ -22,7 +22,7 @@ type Message struct {
 	TextWithEmotes template.HTML `json:"text_with_emotes"`
 	NicknameRender template.HTML `json:"nickname_render"`
 	FullRender     template.HTML `json:"full_render"`
-	Type           string `json:"type"`
+	Type           string        `json:"type"`
 }
 
 func (m *Message) GetChatName() string {
@@ -50,6 +50,10 @@ func (m *Message) IsFromUser() bool {
 
 func (m *Message) GetChannelName() string {
 	return m.ChannelID
+}
+
+func (m *Message) GetUID() string {
+	return m.Owner
 }
 
 func (m *Message) GetColorNickname() string {
