@@ -173,6 +173,9 @@ func ParseMessage(line string) (Message, error) {
 	}
 	line = line[1:]
 	splited := strings.SplitN(line, " :", 3)
+	if len(splited) < 3 {
+		return m, errors.New("command chat not supported")
+	}
 	tags, state := splited[0], splited[1]
 	m.Text = splited[2]
 	m.Time = time.Now()
