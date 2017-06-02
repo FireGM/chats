@@ -19,7 +19,9 @@ type Message interface {
 	GetRenderMessHTML() template.HTML
 	GetRenderNicknameHTML() template.HTML
 	GetRenderFullHTML() template.HTML
+
 	GetChatName() string
+
 	GetTextMessage() string
 	ToUser(string) bool
 	GetUserFrom() string
@@ -28,4 +30,8 @@ type Message interface {
 	GetColorNickname() string
 	IsClearMessage() bool
 	GetUID() string
+
+	// string - url to special icon, if have
+	IsModerator() (bool, string)
+	IsSubscriber() (bool, string)
 }

@@ -96,6 +96,14 @@ func (m *Message) IsClearMessage() bool {
 	return m.Type == clearMsg
 }
 
+func (m *Message) IsModerator() (bool, string) {
+	return m.Moderator, ""
+}
+
+func (m *Message) IsSubscriber() (bool, string) {
+	return false, ""
+}
+
 func parseMessage(mesR MessageResp, channelID string) (Message, error) {
 	var m Message
 	m.ChannelID = channelID

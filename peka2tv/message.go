@@ -194,3 +194,11 @@ func (m *Message) checkPerm(id int) bool {
 	}
 	return true
 }
+
+func (m *Message) IsModerator() (bool, string) {
+	return false, ""
+}
+
+func (m *Message) IsSubscriber() (bool, string) {
+	return false, ""
+}

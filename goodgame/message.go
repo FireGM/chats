@@ -175,3 +175,16 @@ func (m *Message) checkPremiumChan(id int) bool {
 func (m *Message) GetColorNickname() string {
 	return m.Color
 }
+
+func (m *Message) IsSubscriber() (bool, string) {
+	if prem, ok := m.Premium.(bool); prem && ok {
+		return true, ""
+	}
+	return false, ""
+}
+func (m *Message) IsModerator() (bool, string) {
+	if m.UserRights > 0 {
+		return true, ""
+	}
+	return false, ""
+}

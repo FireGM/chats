@@ -159,6 +159,19 @@ func (m *Message) IsClearMessage() bool {
 	return m.Type == clearMsg
 }
 
+func (m *Message) IsModerator() (bool, string) {
+	v, ok := m.Badges["moderator"]
+	return ok, badges["moderator"][v].ImageURL1x
+}
+
+func (m *Message) IsSubscriber() (bool, string) {
+	if v, ok := m.Badges["subscriber"]; ok {
+		url, _ := getBadgeSubscriber(m.Channel, v)
+		return true, url
+	}
+	return false, ""
+}
+
 func ParseMessage(line string) (Message, error) {
 	// log.Println(line)
 	var m Message
