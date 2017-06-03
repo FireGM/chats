@@ -19,6 +19,7 @@ type Message interface {
 	GetRenderMessHTML() template.HTML
 	GetRenderNicknameHTML() template.HTML
 	GetRenderFullHTML() template.HTML
+	GetRenderSmiles() template.HTML
 
 	GetChatName() string
 

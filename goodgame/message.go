@@ -73,20 +73,11 @@ func (m *Message) IsFromUser() bool {
 	return m.Username != ""
 }
 
-func (m *Message) GetRenderMessHTML() template.HTML {
-	m.Init()
-	if m.TextWithEmotes != "" {
-		return m.TextWithEmotes
-	}
-	premium, ok := m.Premium.(bool)
-	if !ok {
-		premium = false
-	}
-	//neednt escape, gg send escaped string
+func (m *Message) GetRenderSmiles() template.HTML {
+	premium, _ := m.IsSubscriber()
 	escaped := m.Text
 	if len(m.Emotes) < 1 {
-		m.TextWithEmotes = `<div class="message goodgame-message">` + template.HTML(escaped) + `</div>`
-		return m.TextWithEmotes
+		return template.HTML(escaped)
 	}
 	for _, emote := range m.Emotes {
 		url := emote.ImgBig
@@ -97,7 +88,17 @@ func (m *Message) GetRenderMessHTML() template.HTML {
 			`<img class="smile gg-smile" src="`+url+`" alt="`+emote.Name+`">`,
 			-1)
 	}
-	m.TextWithEmotes = `<div class="message goodgame-message">` + template.HTML(escaped) + `</div>`
+	return template.HTML(escaped)
+}
+
+func (m *Message) GetRenderMessHTML() template.HTML {
+	m.Init()
+	if m.TextWithEmotes != "" {
+		return m.TextWithEmotes
+	}
+	//neednt escape, gg send escaped string
+
+	m.TextWithEmotes = `<div class="message goodgame-message">` + m.GetRenderSmiles() + `</div>`
 	return m.TextWithEmotes
 }
 
@@ -115,7 +116,7 @@ func (m *Message) GetRenderNicknameHTML() template.HTML {
 
 func (m *Message) getIcon() string {
 	icon := ""
-	if prem, ok := m.Premium.(bool); prem && ok {
+	if prem, _ := m.IsSubscriber(); prem {
 		icon += `<span class="subscribe goodgame-subscribe"></span>`
 	}
 	if m.UserRights > 0 {

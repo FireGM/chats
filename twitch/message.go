@@ -81,14 +81,10 @@ func (m *Message) GetUID() string {
 	return m.User
 }
 
-func (m *Message) GetRenderMessHTML() template.HTML {
-	if m.TextWithEmotes != "" {
-		return m.TextWithEmotes
-	}
+func (m *Message) GetRenderSmiles() template.HTML {
 	escaped := html.EscapeString(m.Text)
 	if len(m.Emotes) < 1 {
-		m.TextWithEmotes = template.HTML(`<div class="message twitch-message">` + template.HTML(escaped) + `</div>`)
-		return m.TextWithEmotes
+		return template.HTML(template.HTML(escaped))
 	}
 	for _, emote := range m.Emotes {
 		var url string
@@ -101,7 +97,14 @@ func (m *Message) GetRenderMessHTML() template.HTML {
 			`<img class="smile" src="`+url+`" alt="`+emote.Name+`">`,
 			-1)
 	}
-	m.TextWithEmotes = template.HTML(`<div class="message twitch-message">` + template.HTML(escaped) + `</div>`)
+	return template.HTML(escaped)
+}
+
+func (m *Message) GetRenderMessHTML() template.HTML {
+	if m.TextWithEmotes != "" {
+		return m.TextWithEmotes
+	}
+	m.TextWithEmotes = template.HTML(`<div class="message twitch-message">` + m.GetRenderSmiles() + `</div>`)
 	return m.TextWithEmotes
 }
 

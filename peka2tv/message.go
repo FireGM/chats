@@ -76,15 +76,11 @@ func (m *Message) GetUID() string {
 	return strconv.Itoa(m.ID)
 }
 
-func (m *Message) GetRenderMessHTML() template.HTML {
-	if m.TextWithEmotes != "" {
-		return m.TextWithEmotes
-	}
+func (m *Message) GetRenderSmiles() template.HTML {
 	m.Init()
 	escaped := html.EscapeString(m.Text)
 	if len(m.Emotes) < 1 {
-		m.TextWithEmotes = `<div class="message peka-message">` + template.HTML(escaped) + `</div>`
-		return m.TextWithEmotes
+		return template.HTML(escaped)
 	}
 	maxSmiles := m.checkMaxSmiles()
 	for _, emote := range m.Emotes {
@@ -96,7 +92,15 @@ func (m *Message) GetRenderMessHTML() template.HTML {
 			1)
 		maxSmiles--
 	}
-	m.TextWithEmotes = `<div class="message peka-message">` + template.HTML(escaped) + `</div>`
+	return template.HTML(escaped)
+}
+
+func (m *Message) GetRenderMessHTML() template.HTML {
+	if m.TextWithEmotes != "" {
+		return m.TextWithEmotes
+	}
+
+	m.TextWithEmotes = `<div class="message peka-message">` + m.GetRenderSmiles() + `</div>`
 	return m.TextWithEmotes
 }
 

@@ -60,11 +60,15 @@ func (m *Message) GetColorNickname() string {
 	return "#000"
 }
 
+func (m *Message) GetRenderSmiles() template.HTML {
+	return template.HTML(m.Text)
+}
+
 func (m *Message) GetRenderMessHTML() template.HTML {
 	if m.TextWithEmotes != "" {
 		return m.TextWithEmotes
 	}
-	m.TextWithEmotes = template.HTML(fmt.Sprintf(`<div class="message youtube-message">%s</div>`, m.Text)) //todo: render emoji?
+	m.TextWithEmotes = template.HTML(fmt.Sprintf(`<div class="message youtube-message">%s</div>`, m.GetRenderSmiles())) //todo: render emoji?
 	return m.TextWithEmotes
 }
 
