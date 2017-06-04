@@ -65,6 +65,11 @@ func (b *Bot) Connect() error {
 	return nil
 }
 
+func (b *Bot) Disconnect() error {
+	b.conn.Close()
+	return nil
+}
+
 func (b *Bot) reconnect() {
 	b.Connect()
 	if b.token != "" {

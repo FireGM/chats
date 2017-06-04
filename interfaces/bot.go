@@ -3,6 +3,7 @@ package interfaces
 import "html/template"
 
 type Bot interface {
+	Disconnect() error
 	// (channel)
 	Join(string) error
 	// (channel)

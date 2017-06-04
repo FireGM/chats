@@ -89,6 +89,13 @@ type Bot struct {
 	sync.RWMutex
 }
 
+func (b *Bot) Disconnect() error {
+	for ch, _ := range b.streams {
+		b.Leave(ch)
+	}
+	return nil
+}
+
 func (b *Bot) Join(channelID string) error {
 	b.Lock()
 	defer b.Unlock()

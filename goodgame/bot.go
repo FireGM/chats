@@ -31,6 +31,7 @@ type Bot struct {
 	handleFunc func(interfaces.Message, interfaces.Bot)
 	locker     sync.RWMutex
 	conn       *websocket.Conn
+	disconnect bool
 	userID     int
 	username   string
 	login      string
@@ -45,6 +46,15 @@ func (b *Bot) Connect() error {
 	b.conn = wsClient
 	once.Do(goUpdater)
 	go b.reader()
+	return nil
+}
+
+func (b *Bot) Disconnect() error {
+	err := b.conn.Close()
+	if err != nil {
+		return err
+	}
+	b.disconnect = true
 	return nil
 }
 
@@ -133,7 +143,9 @@ func (b *Bot) reader() {
 		err := b.conn.ReadJSON(&gg)
 		if err != nil {
 			log.Println(err)
-			go b.reconnect()
+			if !b.disconnect {
+				go b.reconnect()
+			}
 			return
 		}
 		// fmt.Println(gg.Type, string(data))

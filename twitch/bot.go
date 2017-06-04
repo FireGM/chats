@@ -44,6 +44,7 @@ type Bot struct {
 	handleFunc func(interfaces.Message, interfaces.Bot)
 	conn       net.Conn
 	locker     sync.RWMutex
+	disconnect bool
 }
 
 func (b *Bot) Connect() error {
@@ -56,6 +57,16 @@ func (b *Bot) Connect() error {
 	b.channels = map[string]*time.Time{}
 	b.login()
 	once.Do(goUpdater)
+	return nil
+}
+
+func (b *Bot) Disconnect() error {
+
+	err := b.conn.Close()
+	if err != nil {
+		return err
+	}
+	b.disconnect = true
 	return nil
 }
 
@@ -135,7 +146,10 @@ func (b *Bot) read() {
 	for {
 		line, err := reader.ReadLine()
 		if err != nil {
-			b.reconnect()
+			log.Println(err)
+			if !b.disconnect {
+				b.reconnect()
+			}
 			return
 		}
 		// log.Println(line)
