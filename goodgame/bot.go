@@ -105,13 +105,7 @@ func (b *Bot) Leave(ch string) error {
 }
 
 func (b *Bot) SendMessageToChan(ch string, message string) error {
-	err := b.conn.WriteJSON(GGruct{Type: "send_message", Data: MessageReq{ch, message}})
-	if err != nil {
-		log.Println(err)
-		go b.reconnect()
-		return err
-	}
-	return nil
+	return b.conn.WriteJSON(GGruct{Type: "send_message", Data: MessageReq{ChannelId: ch, Text: message}})
 }
 
 func (b *Bot) Ban(channelId, userId string) error {

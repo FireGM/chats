@@ -47,6 +47,8 @@ type BanUser struct {
 type MessageReq struct {
 	ChannelId string `json:"channel_id"`
 	Text      string `json:"text"`
+	HideIcon  bool   `json:"hideIcon"`
+	Mobile    bool   `json:"mobile"`
 }
 
 type UserGG struct {

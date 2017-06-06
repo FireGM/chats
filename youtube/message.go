@@ -15,6 +15,7 @@ const (
 type Message struct {
 	ChannelID      string        `json:"channel_id"`
 	Owner          string        `json:"owner"`
+	OwnerUID       string        `json:"owner_uid"`
 	ChatOwner      bool          `json:"chat_owner"`
 	Moderator      bool          `json:"moderator"`
 	Text           string        `json:"text"`
@@ -53,7 +54,7 @@ func (m *Message) GetChannelName() string {
 }
 
 func (m *Message) GetUID() string {
-	return m.Owner
+	return m.OwnerUID
 }
 
 func (m *Message) GetColorNickname() string {
@@ -112,6 +113,7 @@ func parseMessage(mesR MessageResp, channelID string) (Message, error) {
 	var m Message
 	m.ChannelID = channelID
 	m.Owner = mesR.AuthorDetails.DisplayName
+	m.OwnerUID = mesR.AuthorDetails.ChannelID
 	m.ChatOwner = mesR.AuthorDetails.IsChatOwner
 	m.Moderator = mesR.AuthorDetails.IsChatModerator
 	m.Text = mesR.Snippet.DisplayMessage

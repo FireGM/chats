@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -81,8 +80,6 @@ func banUser(chatId, banChannelId string, duration int, token, apiKey string) er
 	// values.Set("access_token", token)
 	values.Set("key", apiKey) //todo: apiKey required?
 	req.URL.RawQuery = values.Encode()
-	log.Println(req.URL.String())
-	log.Println(req.Header)
 	res, err := client.Do(req)
 	if err != nil {
 		return err
