@@ -131,24 +131,32 @@ func TestMessagePublicFuns(t *testing.T) {
 	if message.GetUID() != "haunterxx" {
 		t.Errorf("Message.GetUID() = %v, want %v", message.GetUID(), "haunterxx")
 	}
-	if message.GetRenderSmiles() != template.HTML(`hashinshin <img class="smile" src="https://static-cdn.jtvnw.net/emoticons/v1/88/1.0" alt="PogChamp"/>`) {
-		t.Errorf("Message.GetRenderSmiles() = %v, want %v", message.GetRenderSmiles(), `hashinshin <img src="https://static-cdn.jtvnw.net/emoticons/v1/88/1.0" alt="PogChamp"/>`)
+
+	smileRender := template.HTML(`hashinshin <img class="smile" src="https://static-cdn.jtvnw.net/emoticons/v1/88/1.0" alt="PogChamp">`)
+	if message.GetRenderSmiles() != smileRender {
+		t.Errorf("Message.GetRenderSmiles() = %v, want %v", message.GetRenderSmiles(), smileRender)
 	}
+
 	if message.GetTextMessage() != "hashinshin PogChamp" {
 		t.Errorf("Message.GetTextMessage() = %v, want %v", message.GetTextMessage(), "hashinshin PogChamp")
 	}
-	if message.GetUserFrom() != "Haunterxx" {
-		t.Errorf("Message.GetUserFrom = %v, want %v", message.GetUserFrom(), "Haunterxx")
+
+	if message.GetUserFrom() != "haunterxx" {
+		t.Errorf("Message.GetUserFrom = %v, want %v", message.GetUserFrom(), "haunterxx")
 	}
+
 	if message.GetColorNickname() != "#E1630E" {
 		t.Errorf("Message.GetColorNickname() = %v, want %v", message.GetColorNickname(), "#E1630E")
 	}
+
 	if message.IsClearMessage() != false {
 		t.Errorf("Message.IsClearMessage() = %v, want %v", message.IsClearMessage(), false)
 	}
+
 	if mod, _ := message.IsModerator(); mod != false {
 		t.Errorf("Message.IsModerator() = %v, want %v", mod, false)
 	}
+
 	if sub, _ := message.IsSubscriber(); sub != true {
 		t.Errorf("Message.IsSubscriber() = %v, want %v", sub, true)
 	}

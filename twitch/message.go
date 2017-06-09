@@ -7,16 +7,42 @@ import (
 	"fmt"
 	"html"
 	"html/template"
+	"regexp"
 	"strconv"
 	"strings"
 )
 
 const (
-	privMsg  = "PRIVMSG"
-	clearMsg = "CLEARCHAT"
+	privMsg       = "PRIVMSG"
+	clearMsg      = "CLEARCHAT"
+	usernoticeMsg = "USERNOTICE"
+	userStateMsg  = "USERSTATE"
+	joinMsg       = "JOIN"
+	roomStateMsg  = "ROOMSTATE"
 )
 
+var messageRegexp = regexp.MustCompile(`^(?P<tags>.*):((?P<username>.*)!(.*)@(.*))?(\.*)tmi.twitch.tv (?P<typeOfMessage>PRIVMSG|USERNOTICE|CLEARCHAT|USERSTATE|JOIN|ROOMSTATE) #(?P<channel>\w*)( (:?)(?P<message>.*))?`)
+var subNamesRegexp = messageRegexp.SubexpNames()
+
 const emotUrl = "https://static-cdn.jtvnw.net/emoticons/v1/%s/1.0"
+
+// type Emote struct {
+// 	ID     int
+// 	Name   string
+// 	Ranges [2]int
+// }
+
+// type emotes []Emote
+
+// func (e emotes) Len() int {
+// 	return len(e)
+// }
+// func (e emotes) Swap(i, j int) {
+// 	e[i], e[j] = e[j], e[i]
+// }
+// func (e emotes) Less(i, j int) bool {
+// 	return e[i].Ranges[0] < e[j].Ranges[0]
+// }
 
 type Emote struct {
 	Name  string `json:"name"`
@@ -66,7 +92,7 @@ func (m *Message) GetUID() string {
 func (m *Message) GetRenderSmiles() template.HTML {
 	escaped := html.EscapeString(m.Text)
 	if len(m.Emotes) < 1 {
-		return template.HTML(escaped)
+		return template.HTML(template.HTML(escaped))
 	}
 	for _, emote := range m.Emotes {
 		var url string
@@ -76,7 +102,7 @@ func (m *Message) GetRenderSmiles() template.HTML {
 
 		}
 		escaped = strings.Replace(escaped, emote.Name,
-			`<img class="smile" src="`+url+`" alt="`+emote.Name+`"/>`,
+			`<img class="smile" src="`+url+`" alt="`+emote.Name+`">`,
 			-1)
 	}
 	return template.HTML(escaped)
@@ -133,7 +159,7 @@ func (m *Message) ToUser(username string) bool {
 }
 
 func (m *Message) GetUserFrom() string {
-	return m.DisplayName
+	return m.User
 }
 
 func (m *Message) GetColorNickname() string {
@@ -157,57 +183,65 @@ func (m *Message) IsSubscriber() (bool, string) {
 	return false, ""
 }
 
-func (m *Message) GetSubscriberIconURL() (string, error) {
-	if v, ok := m.Badges["subscriber"]; ok {
-		url, _ := getBadgeSubscriber(m.Channel, v)
-		return url, nil
-	}
-	return "", errors.New("It's message non subscriber user")
-}
-
 func ParseMessage(line string) (Message, error) {
-	// log.Println(line)
 	var m Message
-	if !strings.HasPrefix(line, "@") {
-		return m, errors.New("Not message")
+	m, err := messageTypeParse(line)
+	if err != nil {
+		return m, err
 	}
-	if strings.Contains(line, privMsg) {
-		m.Type = privMsg
-	} else if strings.Contains(line, clearMsg) {
-		m.Type = clearMsg
-	} else {
-		return m, errors.New("not supported")
-	}
-	m.RawMessage = line
-	line = line[1:]
-	splited := strings.SplitN(line, " :", 3)
-	if len(splited) < 3 {
-		return m, errors.New("command chat not supported")
-	}
-	tags, state := splited[0], splited[1]
-	m.Text = splited[2]
-	// m.Time = time.Now()
-	parseTags(tags, &m)
-	parseState(state, &m)
 	if m.Type == clearMsg {
 		m.User = m.Text
 	}
+	m.RawMessage = line
 	return m, nil
 }
 
-func parseState(stateRaw string, m *Message) {
-	state := strings.Split(stateRaw, " ")
-	m.User = strings.Split(state[0], "!")[0]
-	m.Channel = strings.TrimPrefix(state[2], "#")
+func messageTypeParse(line string) (Message, error) {
+	var message Message
+	data, err := getDataFromLine(line)
+	if err != nil {
+		return message, err
+	}
+	message.Type = data["typeOfMessage"]
+	message.Channel = data["channel"]
+	message.Text = data["message"]
+	message.User = data["username"]
+	err = parseTags(data["tags"], &message)
+	if err != nil {
+		return message, err
+	}
+	return message, nil
+}
+
+func getDataFromLine(line string) (map[string]string, error) {
+	md := map[string]string{}
+	r := messageRegexp.FindAllStringSubmatch(line, 1)
+	if len(r) < 1 {
+		return nil, errors.New("unsupported line of chat")
+	}
+	for i, n := range r[0] {
+		md[subNamesRegexp[i]] = n
+	}
+	if v, ok := md["typeOfMessage"]; !ok || v == "" {
+		return nil, errors.New("Unsupported message type")
+	}
+	return md, nil
 }
 
 func parseTags(tagsString string, m *Message) error {
+	tagsString = strings.TrimPrefix(tagsString, "@")
+	tagsString = strings.TrimSuffix(tagsString, " ")
 	tags := strings.Split(tagsString, ";")
 	m.Tags = make(map[string]string)
 	for _, tag := range tags {
 		spl := strings.SplitN(tag, "=", 2)
-		value := spl[1]
+		value := ""
+		if len(spl) > 1 {
+			value = spl[1]
+		}
 		switch spl[0] {
+		case "":
+			continue
 		case "badges":
 			m.Badges = getBadges(value)
 		case "color":
