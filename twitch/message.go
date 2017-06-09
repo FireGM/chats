@@ -9,7 +9,6 @@ import (
 	"html/template"
 	"strconv"
 	"strings"
-	"time"
 )
 
 const (
@@ -19,24 +18,6 @@ const (
 
 const emotUrl = "https://static-cdn.jtvnw.net/emoticons/v1/%s/1.0"
 
-// type Emote struct {
-// 	ID     int
-// 	Name   string
-// 	Ranges [2]int
-// }
-
-// type emotes []Emote
-
-// func (e emotes) Len() int {
-// 	return len(e)
-// }
-// func (e emotes) Swap(i, j int) {
-// 	e[i], e[j] = e[j], e[i]
-// }
-// func (e emotes) Less(i, j int) bool {
-// 	return e[i].Ranges[0] < e[j].Ranges[0]
-// }
-
 type Emote struct {
 	Name  string `json:"name"`
 	ID    string `json:"id"`
@@ -45,21 +26,22 @@ type Emote struct {
 }
 
 type Message struct {
-	Badges         map[string]string `json:"badges"`
-	Color          string            `json:"color"`
-	DisplayName    string            `json:"display_name"`
-	Emotes         map[string]*Emote `json:"emotes"`
-	Mod            int               `json:"mod"`
-	RoomID         int               `json:"room_id"`
-	Channel        string            `json:"channel"`
-	Text           string            `json:"text"`
-	Time           time.Time         `json:"time"`
-	User           string            `json:"user"`
-	Type           string            `json:"type"`
-	RawMessage     string            `json:"raw_message"`
-	TextWithEmotes template.HTML     `json:"text_with_emotes"`
-	NicknameRender template.HTML     `json:"nickname_render"`
-	FullRender     template.HTML     `json:"full_render"`
+	Badges      map[string]string `json:"badges"`
+	Tags        map[string]string `json:"tags"`
+	Color       string            `json:"color"`
+	DisplayName string            `json:"display_name"`
+	Emotes      map[string]*Emote `json:"emotes"`
+	Mod         int               `json:"mod"`
+	RoomID      int               `json:"room_id"`
+	Channel     string            `json:"channel"`
+	Text        string            `json:"text"`
+	// Time           time.Time         `json:"time"`
+	User           string        `json:"user"`
+	Type           string        `json:"type"`
+	RawMessage     string        `json:"raw_message"`
+	TextWithEmotes template.HTML `json:"text_with_emotes"`
+	NicknameRender template.HTML `json:"nickname_render"`
+	FullRender     template.HTML `json:"full_render"`
 }
 
 func (m *Message) IsFromUser() bool {
@@ -84,7 +66,7 @@ func (m *Message) GetUID() string {
 func (m *Message) GetRenderSmiles() template.HTML {
 	escaped := html.EscapeString(m.Text)
 	if len(m.Emotes) < 1 {
-		return template.HTML(template.HTML(escaped))
+		return template.HTML(escaped)
 	}
 	for _, emote := range m.Emotes {
 		var url string
@@ -94,7 +76,7 @@ func (m *Message) GetRenderSmiles() template.HTML {
 
 		}
 		escaped = strings.Replace(escaped, emote.Name,
-			`<img class="smile" src="`+url+`" alt="`+emote.Name+`">`,
+			`<img class="smile" src="`+url+`" alt="`+emote.Name+`"/>`,
 			-1)
 	}
 	return template.HTML(escaped)
@@ -147,11 +129,11 @@ func (m *Message) GetTextMessage() string {
 }
 
 func (m *Message) ToUser(username string) bool {
-	return strings.Contains(strings.ToLower(m.Text), "@"+username)
+	return strings.Contains(strings.ToLower(m.Text), "@"+strings.ToLower(username))
 }
 
 func (m *Message) GetUserFrom() string {
-	return m.User
+	return m.DisplayName
 }
 
 func (m *Message) GetColorNickname() string {
@@ -175,6 +157,14 @@ func (m *Message) IsSubscriber() (bool, string) {
 	return false, ""
 }
 
+func (m *Message) GetSubscriberIconURL() (string, error) {
+	if v, ok := m.Badges["subscriber"]; ok {
+		url, _ := getBadgeSubscriber(m.Channel, v)
+		return url, nil
+	}
+	return "", errors.New("It's message non subscriber user")
+}
+
 func ParseMessage(line string) (Message, error) {
 	// log.Println(line)
 	var m Message
@@ -188,6 +178,7 @@ func ParseMessage(line string) (Message, error) {
 	} else {
 		return m, errors.New("not supported")
 	}
+	m.RawMessage = line
 	line = line[1:]
 	splited := strings.SplitN(line, " :", 3)
 	if len(splited) < 3 {
@@ -195,13 +186,12 @@ func ParseMessage(line string) (Message, error) {
 	}
 	tags, state := splited[0], splited[1]
 	m.Text = splited[2]
-	m.Time = time.Now()
+	// m.Time = time.Now()
 	parseTags(tags, &m)
 	parseState(state, &m)
 	if m.Type == clearMsg {
 		m.User = m.Text
 	}
-	m.RawMessage = line
 	return m, nil
 }
 
@@ -213,6 +203,7 @@ func parseState(stateRaw string, m *Message) {
 
 func parseTags(tagsString string, m *Message) error {
 	tags := strings.Split(tagsString, ";")
+	m.Tags = make(map[string]string)
 	for _, tag := range tags {
 		spl := strings.SplitN(tag, "=", 2)
 		value := spl[1]
@@ -229,6 +220,8 @@ func parseTags(tagsString string, m *Message) error {
 			m.Mod, _ = strconv.Atoi(value)
 		case "room-id":
 			m.RoomID, _ = strconv.Atoi(value)
+		default:
+			m.Tags[spl[0]] = value
 		}
 	}
 	return nil
